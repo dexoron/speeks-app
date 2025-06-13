@@ -9,15 +9,9 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const navigate = useNavigate();
-  var isAuth:boolean = true
+  var isAuth:boolean = false
   if (!isAuth) {
     navigate("/auth/login");
-    return null;
   }
-  return (
-    <>
-      <h1>Hello</h1>
-      <Link to="/auth/login">Авторизация</Link>
-    </>
-  );
+  navigate("/channels/me")
 }

@@ -7,7 +7,9 @@ export default [
         route("auth/register", "routes/auth/RegisterPage.tsx"),
     ]),
     layout("routes/channels/ChannelsLayout.tsx", [
-        route("channels/me", "routes/channels/me/ChatPage.tsx"),
-        route("channels/[:ServerId]", "routes/channels/server/ChatPage.tsx"),
+        route("channels/me", "routes/channels/me/HomePage.tsx"),
+        route("channels/me/:channelsId", "routes/channels/me/ChatPage.tsx"),
+        route("channels/:serverId", "routes/channels/server/ChatPage.tsx"),
+        route("channels/:serverId/:channelsId", "routes/channels/server/ChatPage.tsx"),
     ])
 ] satisfies RouteConfig;
