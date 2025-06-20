@@ -6,4 +6,7 @@ export default [
         route("auth/login", "routes/auth/Login.tsx"),
         route("auth/register", "routes/auth/Register.tsx"),
     ]),
+    layout("routes/ProtectedRoute.tsx", [
+        route("me", "routes/me.tsx"),
+    ]),
 ] satisfies RouteConfig;
