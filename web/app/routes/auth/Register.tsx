@@ -30,7 +30,15 @@ export default function Register() {
             });
             if (!res.ok) throw new Error("Ошибка регистрации");
             const data = await res.json();
-            login(data.token, { username: data.username });
+            // Получаем пользователя сразу после регистрации
+            const userRes = await fetch("http://127.0.0.1:8000/auth/me", {
+                headers: { "Authorization": `Bearer ${data.access_token}` }
+            });
+            let user = { username };
+            if (userRes.ok) {
+                user = await userRes.json();
+            }
+            login(data.access_token, data.refresh_token, user);
             navigate("/me");
         } catch (err) {
             setError("Ошибка регистрации. Проверьте данные.");

@@ -4,12 +4,15 @@ import type { ReactNode } from "react";
 export interface User {
   username: string;
   email?: string;
+  // ...другие поля, если нужно
 }
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
-  login: (token: string, user: User) => void;
+  accessToken: string | null;
+  refreshToken: string | null;
+  loading: boolean;
+  login: (accessToken: string, refreshToken: string, user: User) => void;
   logout: () => void;
 }
 
@@ -17,33 +20,60 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+    const storedAccess = localStorage.getItem("access_token");
+    const storedRefresh = localStorage.getItem("refresh_token");
+    if (storedAccess && storedRefresh) {
+      setAccessToken(storedAccess);
+      setRefreshToken(storedRefresh);
+      // Проверяем access_token и подгружаем пользователя
+      fetch("http://127.0.0.1:8000/auth/me", {
+        headers: { Authorization: `Bearer ${storedAccess}` },
+      })
+        .then(async (res) => {
+          if (res.ok) {
+            const userData = await res.json();
+            setUser(userData);
+            localStorage.setItem("user", JSON.stringify(userData));
+          } else {
+            // access_token невалиден, пробуем refresh (если реализовано)
+            // ...логика обновления токена...
+            logout();
+          }
+        })
+        .catch(() => logout())
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
   }, []);
 
-  const login = (token: string, user: User) => {
-    setToken(token);
+  const login = (accessToken: string, refreshToken: string, user: User) => {
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
     setUser(user);
-    localStorage.setItem("token", token);
+    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("refresh_token", refreshToken);
     localStorage.setItem("user", JSON.stringify(user));
   };
 
   const logout = () => {
-    setToken(null);
+    setAccessToken(null);
+    setRefreshToken(null);
     setUser(null);
-    localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, accessToken, refreshToken, loading, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

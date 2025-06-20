@@ -26,7 +26,15 @@ export default function Login() {
             });
             if (!res.ok) throw new Error("Неверные данные");
             const data = await res.json();
-            login(data.access_token, { username });
+            // Получаем пользователя сразу после логина
+            const userRes = await fetch("http://127.0.0.1:8000/auth/me", {
+                headers: { "Authorization": `Bearer ${data.access_token}` }
+            });
+            let user = { username };
+            if (userRes.ok) {
+                user = await userRes.json();
+            }
+            login(data.access_token, data.refresh_token, user);
             navigate("/me");
         } catch (err) {
             setError("Ошибка входа. Проверьте данные.");
