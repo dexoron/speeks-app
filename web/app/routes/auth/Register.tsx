@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 export default function Register() {
     
     return (
@@ -30,7 +32,7 @@ export default function Register() {
                 <a className="text-sky-500" href="#"> Условиями использования</a> и
                 <a className="text-sky-500" href="#"> Политиеой конфедициальности</a> Speeksu
                 </span>
-                <span className="text-white/50 text-right">Уже есть аккаунт? <a className="text-sky-500" href="/auth/login">Войти</a></span>
+                <span className="text-white/50 text-right">Уже есть аккаунт? <Link className="text-sky-500" to="/auth/login">Войти</Link></span>
             </form>
         </>
     );

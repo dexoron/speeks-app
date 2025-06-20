@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 export default function Login() {
 
     return (
@@ -14,7 +16,7 @@ export default function Login() {
                     <a className="text-sky-500" href="#">Забыли пароль?</a>
                 </div>
                 <button type="submit" className="w-full h-12 bg-black/75 font-semibold rounded-lg hover:bg-black">Войти</button>
-                <span className="text-white/50 text-right">Нет аккаунта? <a className="text-sky-500" href="/auth/register">Зарегестрироваться</a></span>
+                <span className="text-white/50 text-right">Нет аккаунта? <Link className="text-sky-500" to="/auth/register">Зарегестрироваться</Link></span>
             </form>
         </>
     );
