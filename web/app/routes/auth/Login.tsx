@@ -30,10 +30,11 @@ export default function Login() {
             const userRes = await fetch("http://127.0.0.1:8000/auth/me", {
                 headers: { "Authorization": `Bearer ${data.access_token}` }
             });
-            let user = { username };
-            if (userRes.ok) {
-                user = await userRes.json();
+            if (!userRes.ok) {
+                setError("Ошибка авторизации: не удалось получить профиль пользователя.");
+                return;
             }
+            const user = await userRes.json();
             login(data.access_token, data.refresh_token, user);
             navigate("/me");
         } catch (err) {

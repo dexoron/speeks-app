@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "еуые",
+            "database": "/home/main/project/speeks-server/sp-ng/test.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
