@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { useAuth } from "../../AuthContext";
 import { useState, useEffect } from "react";
-import { faComment, faEllipsis } from '@fortawesome/free-solid-svg-icons'
+import { faComment, faEllipsis, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 
@@ -15,6 +15,7 @@ export default function Me() {
     const [activeTab, setActiveTab] = useState("friends");
     const { accessToken, user } = useAuth();
     const [friends, setFriends] = useState<any[]>([]);
+    const [requests, setRequests] = useState<any[]>([]);
     const [openSettings, setOpenSettings] = useState<string | null>(null);
     useEffect(() => {
         if (!accessToken) return;
@@ -28,6 +29,16 @@ export default function Me() {
             })
             .catch(() => setFriends([]));
     }, [accessToken]);
+
+    useEffect(() => {
+        if (!accessToken) return;
+        axios.get("http://127.0.0.1:8000/auth/friends/requests", {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        })
+            .then(res => setRequests(res.data))
+            .catch(() => setRequests([]));
+    }, [accessToken]);
+
     const handleDeleteFriend = async (friendId: string) => {
         if (!window.confirm("Вы уверены, что хотите удалить этого друга?")) return;
         if (!accessToken) return;
@@ -40,6 +51,19 @@ export default function Me() {
             alert("Ошибка при удалении друга");
         }
     };
+
+    const handleAcceptRequest = async (friendshipId: string) => {
+        if (!accessToken) return;
+        try {
+            await axios.post(`http://127.0.0.1:8000/auth/friends/respond/${friendshipId}`, true, {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            setRequests(reqs => reqs.filter(r => r.id !== friendshipId));
+        } catch (e) {
+            alert("Ошибка при принятии заявки");
+        }
+    };
+
     return (
         <div className="flex flex-col h-full gap-[8px]">
             <div className="bg-white/10 flex flex-row items-center p-[8px] gap-[8px] rounded-[8px]">
@@ -60,40 +84,89 @@ export default function Me() {
               {activeTab === "friends" && (
                 <div>
                   <ul className="flex flex-col gap-2">
-                    {friends.map(f => (
-                      <li key={f.id} className="flex items-center gap-2 justify-between relative">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">{f.id}</span>
-                        </div>
-                        <div className="flex gap-2">
-                          <Link to={`/me/${f.id}`} className="w-[42px] h-[42px] flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-[8px] text-white/50 transition cursor-pointer"><FontAwesomeIcon icon={faComment} /></Link>
-                          <button
-                            className="w-[42px] h-[42px] flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-[8px] text-white/50 transition cursor-pointer"
-                            onClick={() => setOpenSettings(openSettings === f.id ? null : f.id)}
-                          >
-                            <FontAwesomeIcon icon={faEllipsis} />
-                          </button>
-                          {openSettings === f.id && (
-                            <div className="absolute right-0 top-12 z-10 bg-white/10 border border-white/10 rounded shadow-lg flex flex-col min-w-[120px]">
-                              <Link
-                                to={`/me/${f.id}`}
-                                className="px-4 py-2 text-left hover:bg-white/10 transition text-white"
-                                onClick={() => setOpenSettings(null)}
-                              >Чат</Link>
-                              <button
-                                className="px-4 py-2 text-left hover:bg-red-500/20 transition text-red-400"
-                                onClick={() => { handleDeleteFriend(f.id); setOpenSettings(null); }}
-                              >Удалить</button>
+                    {friends.map(f => {
+                      const friendId = user && f.requester_id === user.id ? f.addressee_id : f.requester_id;
+                      return (
+                        <li key={f.id} className="flex items-center gap-2 justify-between relative">
+                          <div className="flex items-center gap-2">
+                            <div className="w-10 h-10 flex-shrink-0">
+                              <img className="w-10 h-10 rounded-full object-cover" src={"http://127.0.0.1:8000/auth/avatars/" + friendId} alt={friendId} />
                             </div>
-                          )}
-                        </div>
-                      </li>
-                    ))}
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">{friendId}</span>
+                            </div>                            
+                          </div>
+                          <div className="flex gap-2">
+                            <Link to={`/me/${friendId}`} className="w-[42px] h-[42px] flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-[8px] text-white/50 transition cursor-pointer"><FontAwesomeIcon icon={faComment} /></Link>
+                            <button
+                              className="w-[42px] h-[42px] flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-[8px] text-white/50 transition cursor-pointer"
+                              onClick={() => setOpenSettings(openSettings === f.id ? null : f.id)}
+                            >
+                              <FontAwesomeIcon icon={faEllipsis} />
+                            </button>
+                            {openSettings === f.id && (
+                              <div className="absolute right-0 top-12 z-10 bg-white/10 border border-white/10 rounded shadow-lg flex flex-col min-w-[120px]">
+                                <Link
+                                  to={`/me/${friendId}`}
+                                  className="px-4 py-2 text-left hover:bg-white/10 transition text-white"
+                                  onClick={() => setOpenSettings(null)}
+                                >Чат</Link>
+                                <button
+                                  className="px-4 py-2 text-left hover:bg-red-500/20 transition text-red-400"
+                                  onClick={() => { handleDeleteFriend(friendId); setOpenSettings(null); }}
+                                >Удалить</button>
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}
               {activeTab === "requests" && (
-                <div>Здесь будут запросы в друзья</div>
+                <div>
+                  <ul className="flex flex-col gap-2">
+                    {requests.length === 0 && <li className="text-white/50">Нет заявок</li>}
+                    {requests.filter(r => user && (r.addressee_id === user.id || r.requester_id === user.id)).map(r => {
+                      const isAddressee = user && r.addressee_id === user.id;
+                      const isRequester = user && r.requester_id === user.id;
+                      return (
+                        <li key={r.id} className="flex items-center gap-2 justify-between relative bg-white/5 rounded p-2">
+                          <span className="font-semibold">{isAddressee ? r.requester_id : r.addressee_id}</span>
+                          <div className="flex gap-2">
+                            {isAddressee && (
+                              <>
+                                <button
+                                  className="w-8 h-8 flex items-center justify-center bg-green-500/30 hover:bg-green-500/60 rounded-full text-green-300 hover:text-green-100 transition"
+                                  title="Принять"
+                                  onClick={() => handleAcceptRequest(r.id)}
+                                >
+                                  <FontAwesomeIcon icon={faCheck} />
+                                </button>
+                                <button
+                                  className="w-8 h-8 flex items-center justify-center bg-red-500/30 hover:bg-red-500/60 rounded-full text-red-300 hover:text-red-100 transition"
+                                  title="Отклонить"
+                                >
+                                  <FontAwesomeIcon icon={faTimes} />
+                                </button>
+                              </>
+                            )}
+                            {isRequester && (
+                              <button
+                                className="w-8 h-8 flex items-center justify-center bg-red-500/30 hover:bg-red-500/60 rounded-full text-red-300 hover:text-red-100 transition"
+                                title="Отменить (не реализовано)"
+                                disabled
+                              >
+                                <FontAwesomeIcon icon={faTimes} />
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               )}
               {activeTab === "add" && (
                 <div className="flex flex-col gap-4 max-w-xs mx-auto mt-8">

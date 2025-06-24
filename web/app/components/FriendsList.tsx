@@ -65,7 +65,7 @@ export default function FriendsList() {
                     return (
                         <li key={f.id}>
                             <Link to={`/me/${friendId}`} className="flex items-center gap-[8px] px-[8px] py-[4px] rounded-[8px] hover:bg-white/10 transition">
-                                <div className="">
+                                <div className="w-10 h-10 flex-shrink-0">
                                     <img className="w-10 h-10 rounded-full object-cover" src={avatarUrl} alt={friend?.username || friendId} />
                                 </div>
                                 <div>
