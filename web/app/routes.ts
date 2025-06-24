@@ -9,6 +9,7 @@ export default [
     layout("routes/ProtectedRoute.tsx", [
         layout("routes/Layout.tsx", [
             route("me", "routes/me/me.tsx"),
+            route("me/:id", "routes/me/chat/[id].tsx"),
         ]),
     ]),
 ] satisfies RouteConfig;

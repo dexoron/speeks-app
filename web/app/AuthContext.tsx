@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
+import Cookies from "js-cookie";
 
 export interface User {
   id: string;
@@ -26,8 +27,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedAccess = localStorage.getItem("access_token");
-    const storedRefresh = localStorage.getItem("refresh_token");
+    // Получаем токены из cookie
+    const storedAccess = Cookies.get("access_token");
+    const storedRefresh = Cookies.get("refresh_token");
     if (storedAccess && storedRefresh) {
       setAccessToken(storedAccess);
       setRefreshToken(storedRefresh);
@@ -57,8 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(accessToken);
     setRefreshToken(refreshToken);
     setUser(user);
-    localStorage.setItem("access_token", accessToken);
-    localStorage.setItem("refresh_token", refreshToken);
+    // Сохраняем токены в cookie
+    Cookies.set("access_token", accessToken, { sameSite: "strict" });
+    Cookies.set("refresh_token", refreshToken, { sameSite: "strict" });
     localStorage.setItem("user", JSON.stringify(user));
   };
 
@@ -66,8 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(null);
     setRefreshToken(null);
     setUser(null);
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
     localStorage.removeItem("user");
   };
 
