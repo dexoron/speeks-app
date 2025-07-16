@@ -1,8 +1,9 @@
 import { useParams } from "react-router";
 import { useAuth } from "../../../AuthContext";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 interface Message {
+  id?: string;
   text: string;
   is_self: boolean;
   sender_id: string;
@@ -10,40 +11,76 @@ interface Message {
 
 export default function Chat() {
   const { id } = useParams();
-  const { accessToken, user } = useAuth();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const wsRef = useRef<WebSocket | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const [wsError, setWsError] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
+  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (!id || !accessToken) return;
-    const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${id}`);
+  // Функция для подключения к WebSocket
+  const connectWS = useCallback(() => {
+    if (!id) return;
+    setConnecting(true);
+    setWsError(null);
+    const ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/chat/${id}`);
     wsRef.current = ws;
+
     ws.onopen = () => {
-      ws.send(JSON.stringify({ type: "auth", jwt_token: accessToken }));
+      setConnecting(false);
     };
+
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.text !== undefined) {
+          // Фильтрация системных сообщений Online/Offline
+          if (/^\(ID: .+\) (Online|Offline)\.?$/.test(data.text)) {
+            // Только в консоль
+            console.log(data.text, data);
+            return;
+          }
           setMessages((prev) => [...prev, data]);
         }
-      } catch {}
+      } catch (e) {
+        // Можно добавить обработку некорректных сообщений
+      }
     };
-    ws.onclose = () => {};
-    return () => {
-      ws.close();
-    };
-  }, [id, accessToken]);
 
+    ws.onerror = () => {
+      setWsError("Ошибка WebSocket соединения");
+    };
+
+    ws.onclose = () => {
+      setConnecting(false);
+      setWsError("WebSocket соединение закрыто. Переподключение...");
+      // Переподключение через 2 секунды
+      reconnectTimeout.current = setTimeout(() => {
+        connectWS();
+      }, 2000);
+    };
+  }, [id]);
+
+  // Подключение к WebSocket
+  useEffect(() => {
+    connectWS();
+    return () => {
+      wsRef.current?.close();
+      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+    };
+  }, [connectWS]);
+
+  // Скролл к последнему сообщению
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Отправка сообщения
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !wsRef.current) return;
+    if (!input.trim() || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
     wsRef.current.send(input);
     setInput("");
   };
@@ -71,11 +108,14 @@ export default function Chat() {
           value={input}
           onChange={e => setInput(e.target.value)}
           placeholder="Введите сообщение..."
+          disabled={connecting || !!wsError}
         />
-        <button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white rounded px-4 py-2 transition">
+        <button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white rounded px-4 py-2 transition" disabled={connecting || !!wsError}>
           Отправить
         </button>
       </form>
+      {connecting && <div className="text-xs text-gray-400 mt-2">Подключение...</div>}
+      {wsError && <div className="text-xs text-red-500 mt-2">{wsError}</div>}
     </div>
   );
 }
