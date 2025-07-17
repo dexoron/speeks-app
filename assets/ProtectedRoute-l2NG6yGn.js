@@ -1,1 +1,0 @@
-import{w as o,o as e,N as r,O as n}from"./chunk-NL6KNZEE-D71spLCj.js";import{u as a}from"./AuthContext-CpWodBBB.js";const f=o(function(){const{accessToken:t,loading:s}=a();return s?e.jsx("div",{className:"flex items-center justify-center h-screen",children:"Загрузка..."}):t?e.jsx(n,{}):e.jsx(r,{to:"/auth/login",replace:!0})});export{f as default};
