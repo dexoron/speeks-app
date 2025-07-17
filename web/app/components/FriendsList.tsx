@@ -16,6 +16,7 @@ export default function FriendsList() {
     const { accessToken, user } = useAuth();
     const [friends, setFriends] = useState<any[]>([]);
     const [users, setUsers] = useState<Record<string, UserInfo>>({});
+    const [usernames, setUsernames] = useState<{ [id: string]: string }>({});
 
     useEffect(() => {
         if (!accessToken) return;
@@ -30,20 +31,23 @@ export default function FriendsList() {
         if (!user?.id || friends.length === 0 || !accessToken) return;
         // Получаем id всех друзей
         const friendIds = friends.map(f => f.requester_id === user.id ? f.addressee_id : f.requester_id);
-        // Для каждого id делаем запрос, если ещё не загружен
+        // В useEffect загружаем username для всех друзей
         friendIds.forEach(id => {
-            if (!users[id]) {
-                axios.get(`http://127.0.0.1:8000/auth/users/${id}`, {
-                    headers: { Authorization: `Bearer ${accessToken}` }
-                })
-                    .then(res => setUsers(prev => ({ ...prev, [id]: res.data })))
-                    .catch(() => {});
-            }
+            fetchUsername(id);
         });
     }, [friends, user, accessToken]);
 
     // Получаем свой id
     const myId = user?.id;
+
+    // Получение username по uuid
+    const fetchUsername = async (id: string) => {
+        if (usernames[id]) return;
+        try {
+            const res = await axios.get(`http://127.0.0.1:8000/auth/user/${id}/username`);
+            setUsernames(prev => ({ ...prev, [id]: res.data.username }));
+        } catch { }
+    };
 
     return (
         <div className="flex-1 p-[8px] gap-[8px] flex flex-col bg-white/10 overflow-auto min-w-[220px] max-w-[260px] rounded-[8px]">
@@ -66,10 +70,10 @@ export default function FriendsList() {
                         <li key={f.id}>
                             <Link to={`/me/${friendId}`} className="flex items-center gap-[8px] px-[8px] py-[4px] rounded-[8px] hover:bg-white/10 transition">
                                 <div className="w-10 h-10 flex-shrink-0">
-                                    <img className="w-10 h-10 rounded-full object-cover" src={avatarUrl} alt={friend?.username || friendId} />
+                                    <img className="w-10 h-10 rounded-full object-cover" src={avatarUrl} alt={usernames[friendId] || friendId} />
                                 </div>
                                 <div>
-                                    <div className="font-semibold">{friend?.username || friendId}</div>
+                                    <div className="font-semibold">{friend?.username || usernames[friendId] || friendId}</div>
                                 </div>
                             </Link>
                         </li>
