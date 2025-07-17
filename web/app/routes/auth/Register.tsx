@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { useAuth } from "../../AuthContext";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { API_BASE } from "~/api";
 
 export default function Register() {
     const { login } = useAuth();
@@ -23,7 +24,7 @@ export default function Register() {
             return;
         }
         try {
-            const res = await fetch("/api/auth/register/", {
+            const res = await fetch(`${API_BASE}/auth/register/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, email, password })
@@ -31,7 +32,7 @@ export default function Register() {
             if (!res.ok) throw new Error("Ошибка регистрации");
             const data = await res.json();
             // Получаем пользователя сразу после регистрации
-            const userRes = await fetch("/api/auth/me", {
+            const userRes = await fetch(`${API_BASE}/auth/me`, {
                 headers: { "Authorization": `Bearer ${data.access_token}` }
             });
             let user = { username };

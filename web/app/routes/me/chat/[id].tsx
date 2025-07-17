@@ -12,6 +12,7 @@ import axios from "axios";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
+import { API_BASE } from "~/api";
 
 
 interface Message {
@@ -78,11 +79,11 @@ export default function Chat() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await axios.get(`/api/auth/user/${id}/username`);
+        const res = await axios.get(`${API_BASE}/auth/user/${id}/username`);
         if (!cancelled) {
           setFriend({
             username: res.data.username,
-            avatarUrl: `/api/auth/avatars/${id}`
+            avatarUrl: `${API_BASE}/auth/avatars/${id}`
           });
         }
       } catch {
@@ -187,7 +188,7 @@ export default function Chat() {
         {messages.map((msg, idx) => {
           const isSelf = msg.is_self;
           const avatarUrl = isSelf
-            ? (user?.id ? `/api/auth/avatars/${user.id}` : undefined)
+            ? (user?.id ? `${API_BASE}/auth/avatars/${user.id}` : undefined)
             : friend?.avatarUrl;
           const username = isSelf ? user?.username : friend?.username;
           return (

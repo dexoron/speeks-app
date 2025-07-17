@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import Cookies from "js-cookie";
+import { API_BASE } from "./api";
 
 export interface User {
   id: string;
@@ -34,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAccessToken(storedAccess);
       setRefreshToken(storedRefresh);
       // Проверяем access_token и подгружаем пользователя
-      fetch("/api/auth/me", {
+      fetch(`${API_BASE}/auth/me`, {
         headers: { Authorization: `Bearer ${storedAccess}` },
       })
         .then(async (res) => {

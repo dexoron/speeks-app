@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../AuthContext";
 import axios from "axios";
+import { API_BASE } from "~/api";
 
 interface UserInfo {
     id: string;
@@ -20,7 +21,7 @@ export default function FriendsList() {
 
     useEffect(() => {
         if (!accessToken) return;
-        axios.get("/api/auth/friends", {
+        axios.get(`${API_BASE}/auth/friends`, {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
             .then(res => setFriends(res.data))
@@ -44,7 +45,7 @@ export default function FriendsList() {
     const fetchUsername = async (id: string) => {
         if (usernames[id]) return;
         try {
-            const res = await axios.get(`/api/auth/user/${id}/username`);
+            const res = await axios.get(`${API_BASE}/auth/user/${id}/username`);
             setUsernames(prev => ({ ...prev, [id]: res.data.username }));
         } catch { }
     };
@@ -65,7 +66,7 @@ export default function FriendsList() {
                 {friends.map((f) => {
                     let friendId = f.requester_id === myId ? f.addressee_id : f.requester_id;
                     const friend = users[friendId];
-                    const avatarUrl = `/api/auth/avatars/${friendId}`;
+                    const avatarUrl = `${API_BASE}/auth/avatars/${friendId}`;
                     return (
                         <li key={f.id}>
                             <Link to={`/me/${friendId}`} className="flex items-center gap-[8px] px-[8px] py-[4px] rounded-[8px] hover:bg-white/10 transition">

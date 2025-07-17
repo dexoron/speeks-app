@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { useAuth } from "../../AuthContext";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { API_BASE } from "~/api";
 
 export default function Login() {
     const { login } = useAuth();
@@ -19,7 +20,7 @@ export default function Login() {
             const urlForm = new URLSearchParams();
             urlForm.append("username", username);
             urlForm.append("password", password);
-            const res = await fetch("/api/auth/login", {
+            const res = await fetch(`${API_BASE}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: urlForm.toString()
@@ -27,7 +28,7 @@ export default function Login() {
             if (!res.ok) throw new Error("Неверные данные");
             const data = await res.json();
             // Получаем пользователя сразу после логина
-            const userRes = await fetch("/api/auth/me", {
+            const userRes = await fetch(`${API_BASE}/auth/me`, {
                 headers: { "Authorization": `Bearer ${data.access_token}` }
             });
             if (!userRes.ok) {
