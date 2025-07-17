@@ -1,0 +1,1 @@
+import{w as t,o as e,O as s}from"./chunk-NL6KNZEE-D71spLCj.js";const r=t(function(){return e.jsx("div",{className:"flex h-screen w-screen items-center justify-center bg-[#101010] text-white",children:e.jsx("div",{className:"p-8 rounded-2xl bg-white/10 w-full max-w-[389px]",children:e.jsx(s,{})})})});export{r as default};
