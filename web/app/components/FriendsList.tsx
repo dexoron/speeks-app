@@ -20,7 +20,7 @@ export default function FriendsList() {
 
     useEffect(() => {
         if (!accessToken) return;
-        axios.get("http://127.0.0.1:8000/auth/friends", {
+        axios.get("/api/auth/friends", {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
             .then(res => setFriends(res.data))
@@ -44,7 +44,7 @@ export default function FriendsList() {
     const fetchUsername = async (id: string) => {
         if (usernames[id]) return;
         try {
-            const res = await axios.get(`http://127.0.0.1:8000/auth/user/${id}/username`);
+            const res = await axios.get(`/api/auth/user/${id}/username`);
             setUsernames(prev => ({ ...prev, [id]: res.data.username }));
         } catch { }
     };
@@ -65,7 +65,7 @@ export default function FriendsList() {
                 {friends.map((f) => {
                     let friendId = f.requester_id === myId ? f.addressee_id : f.requester_id;
                     const friend = users[friendId];
-                    const avatarUrl = `http://127.0.0.1:8000/auth/avatars/${friendId}`;
+                    const avatarUrl = `/api/auth/avatars/${friendId}`;
                     return (
                         <li key={f.id}>
                             <Link to={`/me/${friendId}`} className="flex items-center gap-[8px] px-[8px] py-[4px] rounded-[8px] hover:bg-white/10 transition">

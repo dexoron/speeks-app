@@ -23,7 +23,7 @@ export default function Register() {
             return;
         }
         try {
-            const res = await fetch("http://127.0.0.1:8000/auth/register/", {
+            const res = await fetch("/api/auth/register/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, email, password })
@@ -31,7 +31,7 @@ export default function Register() {
             if (!res.ok) throw new Error("Ошибка регистрации");
             const data = await res.json();
             // Получаем пользователя сразу после регистрации
-            const userRes = await fetch("http://127.0.0.1:8000/auth/me", {
+            const userRes = await fetch("/api/auth/me", {
                 headers: { "Authorization": `Bearer ${data.access_token}` }
             });
             let user = { username };
@@ -71,9 +71,9 @@ export default function Register() {
                 </div>
                 <button type="submit" className="w-full h-12 bg-black/75 font-semibold rounded-lg hover:bg-black">Продолжить</button>
                 <span className="text-white/50">
-                Нажав на кнопку “Продолжить”, вы подтверждаете что ознокомились и согласны с
-                <a className="text-sky-500" href="#"> Условиями использования</a> и
-                <a className="text-sky-500" href="#"> Политиеой конфедициальности</a> Speeksu
+                    Нажав на кнопку “Продолжить”, вы подтверждаете что ознокомились и согласны с
+                    <a className="text-sky-500" href="#"> Условиями использования</a> и
+                    <a className="text-sky-500" href="#"> Политиеой конфедициальности</a> Speeksu
                 </span>
                 <span className="text-white/50 text-right">Уже есть аккаунт? <Link className="text-sky-500" to="/auth/login">Войти</Link></span>
             </form>

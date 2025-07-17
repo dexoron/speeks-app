@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAccessToken(storedAccess);
       setRefreshToken(storedRefresh);
       // Проверяем access_token и подгружаем пользователя
-      fetch("http://127.0.0.1:8000/auth/me", {
+      fetch("/api/auth/me", {
         headers: { Authorization: `Bearer ${storedAccess}` },
       })
         .then(async (res) => {

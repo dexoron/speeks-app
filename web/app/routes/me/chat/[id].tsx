@@ -78,11 +78,11 @@ export default function Chat() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/auth/user/${id}/username`);
+        const res = await axios.get(`/api/auth/user/${id}/username`);
         if (!cancelled) {
           setFriend({
             username: res.data.username,
-            avatarUrl: `http://127.0.0.1:8000/auth/avatars/${id}`
+            avatarUrl: `/api/auth/avatars/${id}`
           });
         }
       } catch {
@@ -187,7 +187,7 @@ export default function Chat() {
         {messages.map((msg, idx) => {
           const isSelf = msg.is_self;
           const avatarUrl = isSelf
-            ? (user?.id ? `http://127.0.0.1:8000/auth/avatars/${user.id}` : undefined)
+            ? (user?.id ? `/api/auth/avatars/${user.id}` : undefined)
             : friend?.avatarUrl;
           const username = isSelf ? user?.username : friend?.username;
           return (

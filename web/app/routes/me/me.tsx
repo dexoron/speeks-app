@@ -42,7 +42,7 @@ export default function Me() {
 
   useEffect(() => {
     if (!accessToken) return;
-    axios.get("http://127.0.0.1:8000/auth/friends", {
+    axios.get("/api/auth/friends", {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
       .then(res => {
@@ -55,7 +55,7 @@ export default function Me() {
 
   useEffect(() => {
     if (!accessToken) return;
-    axios.get("http://127.0.0.1:8000/auth/friends/requests", {
+    axios.get("/api/auth/friends/requests", {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
       .then(res => setRequests(res.data))
@@ -66,7 +66,7 @@ export default function Me() {
   const fetchUsername = async (id: string) => {
     if (usernames[id]) return;
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/auth/user/${id}/username`);
+      const res = await axios.get(`/api/auth/user/${id}/username`);
       setUsernames(prev => ({ ...prev, [id]: res.data.username }));
     } catch { }
   };
@@ -89,7 +89,7 @@ export default function Me() {
     if (!window.confirm("Вы уверены, что хотите удалить этого друга?")) return;
     if (!accessToken) return;
     try {
-      await axios.delete(`http://127.0.0.1:8000/auth/friends/${friendId}`, {
+      await axios.delete(`/api/auth/friends/${friendId}`, {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
       setFriends(friends => friends.filter(f => f.id !== friendId));
@@ -101,7 +101,7 @@ export default function Me() {
   const handleAcceptRequest = async (friendshipId: string) => {
     if (!accessToken) return;
     try {
-      await axios.post(`http://127.0.0.1:8000/auth/friends/respond/${friendshipId}`, true, {
+      await axios.post(`/api/auth/friends/respond/${friendshipId}`, true, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setRequests(reqs => reqs.filter(r => r.id !== friendshipId));
@@ -136,7 +136,7 @@ export default function Me() {
                   <li key={f.id} className="flex items-center gap-2 justify-between relative">
                     <div className="flex items-center gap-2">
                       <div className="w-10 h-10 flex-shrink-0">
-                        <img className="w-10 h-10 rounded-full object-cover" src={"http://127.0.0.1:8000/auth/avatars/" + friendId} alt={usernames[friendId] || friendId} />
+                        <img className="w-10 h-10 rounded-full object-cover" src={"/api/auth/avatars/" + friendId} alt={usernames[friendId] || friendId} />
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">{usernames[friendId] || friendId}</span>
@@ -224,7 +224,7 @@ export default function Me() {
                 const addressee_id = input.value.trim();
                 if (!addressee_id) return;
                 try {
-                  await axios.post("http://127.0.0.1:8000/auth/friends/request", { addressee_id }, {
+                  await axios.post("/api/auth/friends/request", { addressee_id }, {
                     headers: {
                       "Content-Type": "application/json",
                       Authorization: `Bearer ${accessToken}`,
