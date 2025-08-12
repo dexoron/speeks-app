@@ -5,6 +5,10 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+* {
+  transition: all 200ms;
+}
+
 .spoiler {
   background: #5865f2;
   color: transparent;
