@@ -2,13 +2,13 @@ import { Link } from "react-router";
 
 export default function Home() {
   return (
-    <div className="h-screen w-screen bg-black text-white flex flex-col p-2">
+    <div className="h-screen w-screen bg-black text-white flex flex-col p-2 gap-2">
       <nav className="flex justify-between items-center px-4 py-2 bg-white/10 rounded-lg">
         <div className="flex items-center gap-2">
           <img src="/Icon.svg" alt="Speeks" className="w-8 h-8" />
           <span className="text-white text-3xl font-bold">Speeks</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4">
           <Link className="py-2 px-4 hover:bg-white/10 rounded-lg" to="/">Загрузить</Link>
           <Link className="py-2 px-4 hover:bg-white/10 rounded-lg" to="/">Узнать больше</Link>
           <Link className="py-2 px-4 hover:bg-white/10 rounded-lg" to="/">Поддержка</Link>
@@ -28,9 +28,9 @@ export default function Home() {
           <Link className="py-4 px-8 text-xl bg-white/10 hover:bg-white/20 rounded-lg" to="/me">Открыть Speeks</Link>
         </div>
       </main>
-      <footer className="flex justify-between items-center px-4 py-2 bg-white/10 rounded-lg">
+      <footer className="flex flex-col gap-4 md:gap-0 md:flex-row justify-between items-center px-4 py-2 bg-white/10 rounded-lg w-full">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-4 font-bold">
+          <div className="flex items-center gap-4 font-bold w-full">
             <span className="text-4xl">13+</span>
             <div className="flex flex-col">
               <span className="text-xl">&copy; Speeksu 2025</span>
@@ -42,7 +42,7 @@ export default function Home() {
             <span>ОГРН-5234144153, ИНН-1431513451</span>
           </div>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between md:justify-end w-full">
           <div className="flex flex-col gap-1">
             <span>FAQ</span>
             <div className="flex flex-col text-white/75">
