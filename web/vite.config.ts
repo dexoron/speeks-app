@@ -14,6 +14,20 @@ export default defineConfig(({ mode }) => {
         "localhost",
         "127.0.0.1"
       ]
+    },
+    assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2'],
+    build: {
+      assetsDir: 'assets',
+      rollupOptions: {
+        output: {
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name && assetInfo.name.endsWith('.ttf')) {
+              return 'assets/fonts/[name][extname]';
+            }
+            return 'assets/[name]-[hash][extname]';
+          }
+        }
+      }
     }
   };
 });
