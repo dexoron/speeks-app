@@ -5,7 +5,7 @@ import { Outlet } from "react-router";
 
 export default function Layout() {
     return (
-        <div className="flex h-screen w-screen bg-black text-white p-2 gap-2">
+        <div className="flex min-h-[100svh] w-full bg-black text-white p-2 gap-2">
             <div className="flex flex-col h-full gap-2 min-w-[280px] max-w-[340px]">
                 <div className="flex flex-row flex-1 gap-2 h-full">
                     <ServerBar />

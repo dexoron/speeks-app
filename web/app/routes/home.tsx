@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 export default function Home() {
   return (
-    <div className="h-screen w-screen bg-black text-white flex flex-col p-2 gap-2">
+    <div className="min-h-[100svh] w-full bg-black text-white flex flex-col p-2 gap-2">
       <nav className="flex justify-between items-center px-4 py-2 bg-white/10 rounded-lg">
         <div className="flex items-center gap-2">
           <img src="/Icon.svg" alt="Speeks" className="w-8 h-8" />
@@ -18,7 +18,7 @@ export default function Home() {
         </div>
       </nav>
       <main className="flex-1 flex flex-col items-center justify-center gap-4">
-        <h1 className="text-white text-6xl font-black max-w-xl">Сообщества где весело сидеть</h1>
+        <h1 className="text-white text-4xl sm:text-6xl font-black max-w-xl">Сообщества где весело сидеть</h1>
         <p className="text-white text-lg max-w-xl">
           Speeksu — отличное место, чтобы встретиться с друзьями или создать
           глобальное сообщество. Организуйте собственное пространство для бесед, игр и хобби.

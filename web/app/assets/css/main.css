@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @font-face {
   font-family: "Montserrat";
@@ -16,17 +18,12 @@
   font-display: swap;
 }
 
-@theme {
-  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
 * {
   transition: all 200ms;
 }
 
 html {
-  font-family: var(--font-sans);
+  font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
 }
 
 .spoiler {
