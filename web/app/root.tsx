@@ -23,6 +23,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
+        <base target="_self" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Speeks" />
@@ -31,14 +32,55 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
         <meta name="theme-color" content="#000000" />
         <link rel="apple-touch-icon" href={appleTouchIcon} />
+        <link rel="apple-touch-icon" sizes="180x180" href="/Icon.png" />
         <link rel="mask-icon" href="/Icon.svg" color="#5865F2" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="apple-touch-startup-image" href={appleTouchIcon} />
+        <meta name="mobile-web-app-capable" content="yes" />
         <Meta />
         <Links />
       </head>
-      <body className="min-h-[100svh] bg-black text-white overflow-x-hidden">
+      <body className="min-h-[100svh] bg-black text-white overflow-x-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
         {children}
         <ScrollRestoration />
         <Scripts />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                      console.log('SW registered successfully:', registration.scope);
+                      
+                      // Проверяем обновления каждые 60 секунд
+                      setInterval(() => {
+                        registration.update();
+                      }, 60000);
+                    })
+                    .catch(function(error) {
+                      console.log('SW registration failed:', error);
+                    });
+                    
+                  // Обновляем страницу при обновлении SW
+                  navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (navigator.serviceWorker.controller) {
+                      window.location.reload();
+                    }
+                  });
+                });
+              }
+              
+              // Обработчик установки PWA
+              let deferredPrompt;
+              window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                console.log('PWA install prompt ready');
+              });
+            `
+          }}
+        />
       </body>
     </html>
   );

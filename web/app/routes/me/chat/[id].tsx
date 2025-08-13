@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { useAuth } from "../../../AuthContext";
 import { useEffect, useRef, useState, useCallback } from "react";
 import ReactMarkdown from 'react-markdown';
@@ -6,7 +6,9 @@ import ReactMarkdown from 'react-markdown';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faCirclePlus,
-  faPaperPlane
+  faPaperPlane,
+  faArrowLeft,
+  faPhoneVolume
 } from '@fortawesome/free-solid-svg-icons';
 import axios from "axios";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -62,6 +64,7 @@ const Spoiler = ({ children }: { children: React.ReactNode }) => {
 
 export default function Chat() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -178,95 +181,124 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white/10 rounded-[8px] p-2">
-      <div className="flex-1 overflow-y-auto flex flex-col justify-end gap-2">
-        <div className="flex flex-col gap-[8px]">
-          <img src={friend?.avatarUrl} className="w-[64px] h-[64px] rounded-full" />
-          <span className="text-2xl font-bold">{friend?.username}</span>
-          <span>Это начало истории ваших личных сообщений с <span className="font-bold">{friend?.username}</span>.</span>
+    <div className="flex flex-col h-full gap-2">
+      <div className="flex flex-row w-full bg-white/10 rounded-[8px] p-2 gap-4 items-center">
+        <button
+          type="button"
+          className="md:hidden w-[48px] h-[48px] flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-[8px] text-white/50 hover:text-white"
+          onClick={() => navigate(-1)}
+          title="Назад"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} className="text-2xl" />
+        </button>
+
+        <div className="flex-1 flex items-center gap-2 min-w-0">
+          <img
+            className="w-10 h-10 rounded-full object-cover"
+            src={friend?.avatarUrl}
+            alt={friend?.username || (id || "user")}
+          />
+          <div className="flex flex-col truncate">
+            <span className="font-semibold truncate">{friend?.username || id}</span>
+          </div>
         </div>
-        {messages.map((msg, idx) => {
-          const isSelf = msg.is_self;
-          const avatarUrl = isSelf
-            ? (user?.id ? `${API_BASE}/auth/avatars/${user.id}` : undefined)
-            : friend?.avatarUrl;
-          const username = isSelf ? user?.username : friend?.username;
-          return (
-            <div
-              key={idx}
-              className="flex justify-start w-full max-w-[500px] gap-[8px]"
-            >
-              <img src={avatarUrl} className="h-[42px] w-[42px] rounded-full" />
-              <div className="flex flex-col">
-                <span className="font-bold">{username}</span>
-                <ReactMarkdown
-                  components={{
-                    p: ({ node, ...props }) => <p className="whitespace-pre-line break-words" {...props} />, // убрана обработка спойлера
-                    strong: ({ node, ...props }) => <strong className="font-bold" {...props} />, // жирный
-                    em: ({ node, ...props }) => <em className="italic" {...props} />, // курсив
-                    del: ({ node, ...props }) => <del className="line-through" {...props} />, // зачёркнутый
-                    code: (props: any) => {
-                      const { inline, className = '', children, ...rest } = props;
-                      const match = /language-(\w+)/.exec(className);
-                      const codeString = String(children).replace(/\n$/, '');
-                      // Многострочный код — с подсветкой и кнопкой копировать
-                      return (
-                        <div className="relative my-2">
-                          <SyntaxHighlighter
-                            style={oneDark}
-                            language={match ? match[1] : undefined}
-                            PreTag="div"
-                            className="rounded-lg text-sm !bg-[#23272a] !p-4"
-                            customStyle={{ background: '#23272a', borderRadius: '8px', padding: '1em' }}
-                          >
-                            {codeString}
-                          </SyntaxHighlighter>
-                          <CopyButton text={codeString} />
-                        </div>
-                      );
-                    },
-                    blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-blue-400 pl-4 text-gray-400 italic my-2" {...props} />,
-                    ul: ({ node, ...props }) => <ul className="list-disc pl-6" {...props} />,
-                    ol: ({ node, ...props }) => <ol className="list-decimal pl-6" {...props} />,
-                    li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-                    a: ({ node, ...props }) => <a className="text-blue-500 underline" target="_blank" rel="noopener noreferrer" {...props} />,
-                    h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-2 mb-1" {...props} />,
-                    h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-2 mb-1" {...props} />,
-                    h3: ({ node, ...props }) => <h3 className="text-lg font-bold mt-2 mb-1" {...props} />,
-                    // @ts-ignore
-                    subtext: ({ node, ...props }) => <span className="text-xs text-gray-400" {...props} />,
-                  }}
-                  // @ts-ignore
-                  skipHtml={false}
-                >
-                  {preprocessDiscordMarkdown(msg.text)}
-                </ReactMarkdown>
-              </div>
-            </div>
-          );
-        })}
-        <div ref={bottomRef} />
+
+        <div className="flex w-[48px] h-[48px] items-center justify-center bg-white/10 hover:bg-white/20 rounded-[8px] text-white/50 hover:text-white">
+          <FontAwesomeIcon icon={faPhoneVolume} className="text-2xl" />
+        </div>
       </div>
-      <form onSubmit={sendMessage} className="flex bg-white/10 gap-[4px] rounded-[8px] text-white/50">
-        <button type="button" className="h-[42px] w-[42px] cursor-pointer">
-          <FontAwesomeIcon icon={faCirclePlus} />
-        </button>
-        <textarea
-          ref={textareaRef}
-          className="flex-1 text-white resize-none h-[42px] max-h-[240px] rounded p-2 bg-transparent outline-none"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onInput={handleInput}
-          onKeyDown={handleKeyDown}
-          placeholder={`Написать ${friend?.username || "..."}`}
-          disabled={connecting || !!wsError}
-        />
-        <button type="submit" className="h-[42px] w-[42px] cursor-pointer" disabled={connecting || !!wsError}>
-          <FontAwesomeIcon icon={faPaperPlane} />
-        </button>
-      </form>
-      {connecting && <div className="text-xs text-gray-400 mt-2">Подключение...</div>}
-      {wsError && <div className="text-xs text-red-500 mt-2">{wsError}</div>}
+
+      <div className="flex-1 flex flex-col h-full bg-white/10 rounded-[8px] p-2">
+        <div className="flex-1 overflow-y-auto flex flex-col justify-end gap-2">
+          <div className="flex flex-col gap-[8px]">
+            <img src={friend?.avatarUrl} className="w-[64px] h-[64px] rounded-full" />
+            <span className="text-2xl font-bold">{friend?.username}</span>
+            <span>Это начало истории ваших личных сообщений с <span className="font-bold">{friend?.username}</span>.</span>
+          </div>
+          {messages.map((msg, idx) => {
+            const isSelf = msg.is_self;
+            const avatarUrl = isSelf
+              ? (user?.id ? `${API_BASE}/auth/avatars/${user.id}` : undefined)
+              : friend?.avatarUrl;
+            const username = isSelf ? user?.username : friend?.username;
+            return (
+              <div
+                key={idx}
+                className="flex justify-start w-full max-w-[500px] gap-[8px]"
+              >
+                <img src={avatarUrl} className="h-[42px] w-[42px] rounded-full" />
+                <div className="flex flex-col">
+                  <span className="font-bold">{username}</span>
+                  <ReactMarkdown
+                    components={{
+                      p: ({ node, ...props }) => <p className="whitespace-pre-line break-words" {...props} />, // убрана обработка спойлера
+                      strong: ({ node, ...props }) => <strong className="font-bold" {...props} />, // жирный
+                      em: ({ node, ...props }) => <em className="italic" {...props} />, // курсив
+                      del: ({ node, ...props }) => <del className="line-through" {...props} />, // зачёркнутый
+                      code: (props: any) => {
+                        const { inline, className = '', children, ...rest } = props;
+                        const match = /language-(\w+)/.exec(className);
+                        const codeString = String(children).replace(/\n$/, '');
+                        // Многострочный код — с подсветкой и кнопкой копировать
+                        return (
+                          <div className="relative my-2">
+                            <SyntaxHighlighter
+                              style={oneDark}
+                              language={match ? match[1] : undefined}
+                              PreTag="div"
+                              className="rounded-lg text-sm !bg-[#23272a] !p-4"
+                              customStyle={{ background: '#23272a', borderRadius: '8px', padding: '1em' }}
+                            >
+                              {codeString}
+                            </SyntaxHighlighter>
+                            <CopyButton text={codeString} />
+                          </div>
+                        );
+                      },
+                      blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-blue-400 pl-4 text-gray-400 italic my-2" {...props} />,
+                      ul: ({ node, ...props }) => <ul className="list-disc pl-6" {...props} />,
+                      ol: ({ node, ...props }) => <ol className="list-decimal pl-6" {...props} />,
+                      li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                      a: ({ node, ...props }) => <a className="text-blue-500 underline" target="_blank" rel="noopener noreferrer" {...props} />,
+                      h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-2 mb-1" {...props} />,
+                      h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-2 mb-1" {...props} />,
+                      h3: ({ node, ...props }) => <h3 className="text-lg font-bold mt-2 mb-1" {...props} />,
+                      // @ts-ignore
+                      subtext: ({ node, ...props }) => <span className="text-xs text-gray-400" {...props} />,
+                    }}
+                    // @ts-ignore
+                    skipHtml={false}
+                  >
+                    {preprocessDiscordMarkdown(msg.text)}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            );
+          })}
+          <div ref={bottomRef} />
+        </div>
+        <form onSubmit={sendMessage} className="flex bg-white/10 gap-[4px] rounded-[8px] text-white/50">
+          <button type="button" className="h-[42px] w-[42px] cursor-pointer">
+            <FontAwesomeIcon icon={faCirclePlus} />
+          </button>
+          <textarea
+            ref={textareaRef}
+            className="flex-1 text-white resize-none h-[42px] max-h-[240px] rounded p-2 bg-transparent outline-none"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onInput={handleInput}
+            onKeyDown={handleKeyDown}
+            placeholder={`Написать ${friend?.username || "..."}`}
+            disabled={connecting || !!wsError}
+          />
+          <button type="submit" className="h-[42px] w-[42px] cursor-pointer" disabled={connecting || !!wsError}>
+            <FontAwesomeIcon icon={faPaperPlane} />
+          </button>
+        </form>
+        {connecting && <div className="text-xs text-gray-400 mt-2">Подключение...</div>}
+        {wsError && <div className="text-xs text-red-500 mt-2">{wsError}</div>}
+      </div>
     </div>
+
   );
 }

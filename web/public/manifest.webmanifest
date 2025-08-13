@@ -1,0 +1,31 @@
+{
+    "name": "Speeks",
+    "short_name": "Speeks",
+    "description": "Сообщества где весело сидеть",
+    "start_url": "/me",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "icons": [
+        {
+            "src": "/Icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon.ico",
+            "sizes": "48x48 32x32 16x16",
+            "type": "image/x-icon"
+        }
+    ],
+    "categories": [
+        "social",
+        "entertainment"
+    ],
+    "lang": "ru",
+    "dir": "ltr",
+    "prefer_related_applications": false
+}
