@@ -1,7 +1,7 @@
-import { Link } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 import { useAuth } from "../../AuthContext";
 import { useState, useEffect } from "react";
-import { faComment, faEllipsis, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faComment, faEllipsis, faCheck, faTimes, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import ReactMarkdown from 'react-markdown';
@@ -33,14 +33,15 @@ function preprocessDiscordMarkdown(text: string) {
   return text;
 }
 
-export default function Me() {
+export default function Me({ isMobile = false }) {
   const [activeTab, setActiveTab] = useState("friends");
+  const navigate = useNavigate();
   const { accessToken, user } = useAuth();
   const [friends, setFriends] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
   const [openSettings, setOpenSettings] = useState<string | null>(null);
   const [usernames, setUsernames] = useState<{ [id: string]: string }>({});
-
+  const isRootMe = location.pathname === "/friends";
   useEffect(() => {
     if (!accessToken) return;
     axios.get(`${API_BASE}/auth/friends`, {
@@ -110,7 +111,59 @@ export default function Me() {
       alert("Ошибка при принятии заявки");
     }
   };
+  if (isRootMe) {
+    return (
+      <div className="flex flex-col h-full gap-[8px]">
+        <div className="flex flex-row w-full bg-white/10 rounded-[8px] p-2 gap-4 items-center">
+          <button
+            type="button"
+            className="md:hidden w-[48px] h-[48px] flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-[8px] text-white/50 hover:text-white"
+            onClick={() => navigate(-1)}
+            title="Назад"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="text-2xl" />
+          </button>
 
+          <span>Добавить в друзья</span>
+        </div>
+        <div className="flex-1 bg-white/10 p-[8px] rounded-[8px]">
+          <div className="flex flex-col gap-4 max-w-xs mx-auto mt-8">
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const input = form.elements.namedItem("addressee_id") as HTMLInputElement;
+                const addressee_id = input.value.trim();
+                if (!addressee_id) return;
+                try {
+                  await axios.post(`${API_BASE}/auth/friends/request`, { addressee_id }, {
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                  });
+                  input.value = "";
+                  alert("Заявка отправлена!");
+                } catch (e) {
+                  alert("Ошибка при отправке заявки в друзья");
+                }
+              }}
+            >
+              <label className="block mb-2 text-white/70" htmlFor="addressee_id">ID пользователя для добавления в друзья</label>
+              <input
+                type="text"
+                name="addressee_id"
+                id="addressee_id"
+                className="w-full p-2 rounded bg-white/10 text-white mb-2"
+                placeholder="Введите UUID пользователя"
+              />
+              <button type="submit" className="w-full bg-sky-600 hover:bg-sky-700 text-white rounded p-2 transition">Добавить в друзья</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="flex flex-col h-full gap-[8px]">
       <div className="bg-white/10 flex flex-row items-center p-[8px] gap-[8px] rounded-[8px]">

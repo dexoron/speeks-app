@@ -19,7 +19,7 @@ export default function ServerBar({ isMobile = false }) {
     ];
     if (isMobile) {
         return (
-            <nav className="flex flex-col items-center w-16 h-full bg-white/10 py-2 gap-2 border-r border-white/10 rounded-[8px]">
+            <nav className="flex flex-col items-center w-16 h-full bg-white/10 py-2 gap-2 border-white/10 rounded-[8px]">
                 {/* Бренд */}
                 <Link
                     to="/me"
@@ -49,7 +49,7 @@ export default function ServerBar({ isMobile = false }) {
         );
     }
     return (
-        <nav className="flex flex-col items-center w-16 h-full bg-white/10 py-2 gap-2 border-r border-white/10 rounded-[8px]">
+        <nav className="flex flex-col items-center w-16 h-full bg-white/10 py-2 gap-2 border-white/10 rounded-[8px]">
             {/* Бренд */}
             <Link
                 to="/me"

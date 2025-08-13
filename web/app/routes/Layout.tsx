@@ -19,7 +19,7 @@ export default function Layout() {
 
             {/* Мобильная версия*/}
             {isRootMe && (
-                <div className="md:hidden fixed inset-0 flex flex-col bg-black p-2 gap-2 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+                <div className="md:hidden fixed inset-0 flex flex-col bg-black p-2 my-2 gap-2 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
                     <div className="flex flex-1 flex-row gap-2">
                         <ServerBar />
                         <FriendsList />

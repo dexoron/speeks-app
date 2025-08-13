@@ -9,6 +9,7 @@ export default [
     layout("routes/ProtectedRoute.tsx", [
         layout("routes/Layout.tsx", [
             route("me", "routes/me/me.tsx"),
+            route("friends", "routes/me/me.tsx", { id: "routes/friends" }),  // Добавил кастомный id, чтоб не было дублей, сука
             route("me/:id", "routes/me/chat/[id].tsx"),
         ]),
     ]),
